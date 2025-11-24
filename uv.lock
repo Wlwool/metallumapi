@@ -262,7 +262,7 @@ wheels = [
 ]
 
 [[package]]
-name = "metallum"
+name = "metallumapi"
 version = "1.1.0"
 source = { editable = "." }
 dependencies = [
