@@ -73,7 +73,7 @@ uv pip install -e .
 ### Git clone
 
 ```bash
-git clone https://github.com/<ваш-аккаунт>/metallumapi
+git clone https://github.com/Wlwool/metallumapi.git
 cd metallumapi
 uv venv .venv && source .venv/bin/activate
 uv pip install -e .
