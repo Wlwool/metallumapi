@@ -1,0 +1,35 @@
+[project]
+name = "metallumapi"
+version = "1.1.0"
+description = "API for metal-archives.com"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Wlwool" }]
+requires-python = ">=3.13,<4.0"
+dependencies = [
+    "requests>=2.31.0",
+    "curl-cffi>=0.13.0",
+    "pyquery>=2.0.0",
+    "python-dateutil>=2.8.2",
+    "lxml>=5.1.0",
+    "fake-useragent>=1.4.0",
+    "pytest>=9.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pylint>=3.0.3",
+]
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.pylint]
+disable = [
+    "W0613",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
