@@ -144,6 +144,14 @@ class Band(MetallumEntity):
         return self._dd_text_for_label("Formed in:")
 
     @property
+    def years_active(self) -> str:
+        """
+        >>> band.years_active
+        '1981-present'
+        """
+        return self._dd_text_for_label("Years active:")
+
+    @property
     def genres(self) -> List[str]:
         """
         >>> band.genres
