@@ -581,6 +581,13 @@ class AlbumWrapper(Metallum):
             self._album = Album(self._album.url)
         return getattr(self._album, name)
 
+    def _load_sync(self):
+        """Синхронная загрузка данных альбома (для использования в asyncio.to_thread)"""
+        if isinstance(self._album, LazyAlbum):
+            from metallum.models import Album
+            self._album = Album(self._album.url)
+        return self
+
     @property
     def tracks(self):
         """
