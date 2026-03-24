@@ -10,27 +10,17 @@ from curl_cffi import requests as curl_requests
 from pyquery import PyQuery
 
 from metallum.consts import CACHE_FILE, REQUEST_TIMEOUT
-from metallum.utils import make_absolute, get_user_agent
+from metallum.utils import make_absolute
 
 
 class Metallum:
     """Базовый класс Metallum - представляет страницу Metallum"""
-
-    _CACHE_TTL = 300
+    _CACHE_TTL = 5
+    _session = curl_requests.Session(impersonate="chrome120")
 
     def __init__(self, url):
         self._cache_dir = Path(CACHE_FILE)
         self._cache_dir.mkdir(parents=True, exist_ok=True)
-        self._session = curl_requests.Session()
-        self._session.headers = {
-            "User-Agent": get_user_agent(),
-            "Accept-Encoding": "gzip, deflate",
-            "Accept": "application/json, text/javascript, */*; q=0.01",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Referer": "https://www.metal-archives.com/",
-            "X-Requested-With": "XMLHttpRequest",
-            "Connection": "keep-alive",
-        }
 
         self._content = self._fetch_page_content(url)
         self._page = PyQuery(self._content)

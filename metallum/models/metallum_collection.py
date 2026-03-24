@@ -9,9 +9,15 @@ import time
 class MetallumCollection(Metallum, list):
     """Базовый класс Metallum для коллекций (например, альбомов)"""
 
-    def load_all(self, max_workers=100, items=None):
+    def load_all(self, max_workers=100, items=None, batch_size=100, batch_delay=0.7):
         """
         Параллельная загрузка деталей всех элементов коллекции или переданного списка
+
+        Args:
+            max_workers: Максимальное количество потоков
+            items: Список элементов для загрузки (по умолчанию все)
+            batch_size: Размер пачки для пакетной обработки
+            batch_delay: Задержка между пачками в секундах
         """
         target_items = items if items is not None else self
 
@@ -30,16 +36,27 @@ class MetallumCollection(Metallum, list):
                     raise e
             return item
 
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            list(executor.map(_load_item, target_items))
+        # Разбиваем на пачки
+        batches = [target_items[i:i + batch_size] for i in range(0, len(target_items), batch_size)]
+
+        for idx, batch in enumerate(batches):
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                list(executor.map(_load_item, batch))
+
+            # Задержка между пачками
+            if idx < len(batches) - 1:
+                time.sleep(batch_delay)
         return self
 
-    async def load_all_async(self, max_workers=100, items=None):
+    async def load_all_async(self, max_workers=100, items=None, batch_size=100, batch_delay=0.7):
         """
-        Асинхронная обёртка над load_all() через ThreadPoolExecutor.
+        Асинхронная загрузка деталей всех элементов коллекции
+
         Args:
             max_workers: Максимальное количество одновременных запросов
             items: Список элементов для загрузки (по умолчанию все)
+            batch_size: Размер пачки для пакетной обработки
+            batch_delay: Задержка между пачками в секундах
         """
         target_items = items if items is not None else self
         semaphore = asyncio.Semaphore(max_workers)
@@ -60,8 +77,16 @@ class MetallumCollection(Metallum, list):
                         raise e
                 return item
 
-        tasks = [_load_item(item) for item in target_items]
-        await asyncio.gather(*tasks)
+        # Разбиваем на пачки
+        batches = [target_items[i:i + batch_size] for i in range(0, len(target_items), batch_size)]
+
+        for idx, batch in enumerate(batches):
+            tasks = [_load_item(item) for item in batch]
+            await asyncio.gather(*tasks)
+
+            # Задержка между пачками
+            if idx < len(batches) - 1:
+                await asyncio.sleep(batch_delay)
         return self
 
 

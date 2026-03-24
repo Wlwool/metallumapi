@@ -3,7 +3,14 @@ from datetime import datetime
 import pytest
 
 from metallum.models.album_types import AlbumTypes
-from metallum.operations import album_for_id, band_search, song_search
+from metallum.operations import (
+    album_for_id,
+    album_search,
+    band_for_id,
+    band_search,
+    lyrics_for_id,
+    song_search,
+)
 
 
 @pytest.fixture
@@ -46,7 +53,6 @@ def song():
 
 @pytest.fixture
 def metallica_band():
-    # Поиск группы Metallica
     bands = band_search("metallica")
     return bands[0].get()
 
@@ -55,7 +61,7 @@ def test_band_search(band):
     assert band.name == "Metallica"
 
 
-def test_album_search(album):
+def test_album_from_band_albums(album):
     assert album.title == "Master of Puppets"
 
 
@@ -108,3 +114,31 @@ def test_album_tracks(metallica_band):
 
     # Проверка существования треков
     assert len(album.tracks) > 0
+
+
+def test_band_for_id():
+    band = band_for_id("125")
+    assert band.name == "Metallica"
+    assert band.id == "125"
+    assert band.country == "United States"
+
+
+def test_album_search_function():
+    results = album_search(title="Master of Puppets", band="Metallica")
+    assert len(results) > 0
+    assert results[0].title == "Master of Puppets"
+    assert results[0].band_name == "Metallica"
+
+
+def test_album_search_by_year():
+    results = album_search(title="rust in peace", year_from=1990, year_to=1990)
+    assert len(results) > 0
+    assert results[0].title == "Rust in Peace"
+    assert results[0].band_name == "Megadeth"
+
+
+def test_lyrics_for_id():
+    lyrics = lyrics_for_id(5018)
+    lyrics_str = str(lyrics)
+    assert len(lyrics_str) > 0
+    assert "\n" in lyrics_str or " " in lyrics_str

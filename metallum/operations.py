@@ -264,7 +264,7 @@ def lyrics_for_id(lyrics_id: int) -> "Lyrics":
     Получить текст песни по его ID.
 
     Args:
-        id: ID текста песни.
+        lyrics_id: ID текста песни.
 
     Returns:
         Lyrics: Текст песни с указанным ID.

@@ -51,7 +51,7 @@ Metal Archives не предоставляет официального API, п�
 - рабочий OpenSSL (для HTTP/2 и современного TLS);
 - зависимости:
   - `curl-cffi` - обход Cloudflare;
-  - `requests`, `pyquery`, `lxml`, `python-dateutil`, `fake-useragent`.
+  - `requests`, `pyquery`, `lxml`, `python-dateutil`, `curl-cffi`.
 
 > Разработка и тестирование ведутся под Linux + Python 3.13. На других версиях может работать, но гарантий нет.
 

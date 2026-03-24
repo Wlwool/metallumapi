@@ -1,11 +1,7 @@
 """Вспомогательные функции для пакета Metallum."""
-
 import datetime
 import re
-from functools import lru_cache
 from typing import List
-
-from fake_useragent import UserAgent
 
 from metallum.consts import BASE_URL, UTC_OFFSET
 
@@ -13,7 +9,6 @@ from metallum.consts import BASE_URL, UTC_OFFSET
 def map_params(params, m):
     """
     Сопоставить параметры с соответствующими ключами.
-
     Args:
         params: Параметры для сопоставления.
         m: Сопоставление.
@@ -31,10 +26,8 @@ def map_params(params, m):
 def split_genres(s: str) -> List[str]:
     """
     Разделить строку жанров на список жанров.
-
     Args:
         s: Строка с жанрами.
-
     Returns:
         list: Список жанров.
 
@@ -61,10 +54,8 @@ def split_genres(s: str) -> List[str]:
 def make_absolute(endpoint: str) -> str:
     """
     Преобразовать относительные URL-адреса в абсолютные
-
     Args:
         endpoint: Относительный URL-адрес.
-
     Returns:
         str: Абсолютный URL-адрес.
     """
@@ -74,10 +65,8 @@ def make_absolute(endpoint: str) -> str:
 def offset_time(t: datetime.datetime) -> datetime.datetime:
     """
     Преобразовать серверное время в UTC
-
     Args:
         t: Серверное время.
-
     Returns:
         datetime.datetime: Время в UTC.
     """
@@ -88,11 +77,9 @@ def offset_time(t: datetime.datetime) -> datetime.datetime:
 def parse_duration(s: str) -> int:
     """
     Разобрать строку длительности в секунды.
-
-    Аргументы:
+    Args:
         s: Строка с длительностью.
-
-    Возвращает:
+    Returns:
         int: Длительность в секундах.
 
     Примеры:
@@ -110,9 +97,3 @@ def parse_duration(s: str) -> int:
     if len(parts) == 3:
         seconds += int(parts[0]) * 3600
     return seconds
-
-
-@lru_cache
-def get_user_agent():
-    """Получить случайного юзер агента."""
-    return UserAgent().getSafari["useragent"]
