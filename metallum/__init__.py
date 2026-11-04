@@ -1,9 +1,16 @@
 #!/usr/bin/env python
-# encoding: utf-8
 """Python-интерфейс для metal-archives.com"""
 
 from metallum.models.album_types import AlbumTypes
-from metallum.operations import album_for_id, band_search, song_search, lyrics_for_id
+from metallum.operations import album_for_id, band_search, lyrics_for_id, song_search
+
+__all__ = [
+    "AlbumTypes",
+    "album_for_id",
+    "band_search",
+    "lyrics_for_id",
+    "song_search",
+]
 
 if __name__ == "__main__":
     import doctest

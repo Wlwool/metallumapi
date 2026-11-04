@@ -2,7 +2,6 @@
 
 import datetime
 import re
-from typing import List, Optional
 
 from dateutil import parser as date_parser
 from pyquery import PyQuery
@@ -13,10 +12,10 @@ from metallum.models.metallum import Metallum
 from metallum.models.metallum_collection import MetallumCollection
 from metallum.models.metallum_entity import MetallumEntity
 from metallum.models.similar_artists import SimilarArtists
-from metallum.utils import offset_time, parse_duration, split_genres
+from metallum.utils import extract_id, offset_time, parse_duration, split_genres
 
 
-def _get_bands_list(page) -> List["Band"]:
+def _get_bands_list(page) -> list["Band"]:
     """
     Получить список групп из страницы
 
@@ -29,7 +28,7 @@ def _get_bands_list(page) -> List["Band"]:
     bands = []
     for a in page.find("a"):
         url = PyQuery(a).attr("href")
-        band_id = re.search(r"\d+$", url).group(0)
+        band_id = extract_id(url)
         bands.append(Band(f"bands/_/{band_id}"))
     return bands
 
@@ -69,7 +68,7 @@ class Band(MetallumEntity):
         '125'
         """
         url = self._page(".band_name a").attr("href")
-        return re.search(r"\d+$", url).group(0)
+        return extract_id(url)
 
     @property
     def url(self) -> str:
@@ -80,7 +79,7 @@ class Band(MetallumEntity):
         return f"bands/_/{self.id}"
 
     @property
-    def added(self) -> Optional[datetime.datetime]:
+    def added(self) -> datetime.datetime | None:
         """
         >>> type(band.added)
         <class 'datetime.datetime'>
@@ -92,7 +91,7 @@ class Band(MetallumEntity):
             return None
 
     @property
-    def modified(self) -> Optional[datetime.datetime]:
+    def modified(self) -> datetime.datetime | None:
         """
         >>> type(band.modified)
         <class 'datetime.datetime'>
@@ -152,7 +151,7 @@ class Band(MetallumEntity):
         return self._dd_text_for_label("Years active:")
 
     @property
-    def genres(self) -> List[str]:
+    def genres(self) -> list[str]:
         """
         >>> band.genres
         ['Thrash Metal (early)', 'Hard Rock (mid)', 'Heavy/Thrash Metal (later)']
@@ -160,7 +159,7 @@ class Band(MetallumEntity):
         return split_genres(self._dd_text_for_label("Genre:"))
 
     @property
-    def themes(self) -> List[str]:
+    def themes(self) -> list[str]:
         """
         >>> band.themes
         ['Introspection', 'Anger', 'Corruption', 'Deceit', 'Death', 'Life',
@@ -177,7 +176,7 @@ class Band(MetallumEntity):
         return self._dd_text_for_label("Current label:")
 
     @property
-    def logo(self) -> Optional[str]:
+    def logo(self) -> str | None:
         """
         >>> band.logo
         'https://www.metal-archives.com/images/1/2/5/125_logo.png'
@@ -188,7 +187,7 @@ class Band(MetallumEntity):
         return url.split("?")[0]
 
     @property
-    def photo(self) -> Optional[str]:
+    def photo(self) -> str | None:
         """
         >>> band.photo
         'https://www.metal-archives.com/images/1/2/5/125_photo.jpg'
@@ -199,7 +198,7 @@ class Band(MetallumEntity):
         return url.split("?")[0]
 
     @property
-    def albums(self) -> List["AlbumCollection"]:
+    def albums(self) -> list["AlbumCollection"]:
         """
         >>> len(band.albums) > 0
         True
@@ -368,7 +367,7 @@ class Album(MetallumEntity):
         '547'
         """
         url = self._page(".album_name a").attr("href")
-        return re.search(r"\d+$", url).group(0)
+        return extract_id(url)
 
     @property
     def url(self) -> str:
@@ -379,7 +378,7 @@ class Album(MetallumEntity):
         return f"albums/_/_/{self.id}"
 
     @property
-    def bands(self) -> List[Band]:
+    def bands(self) -> list[Band]:
         """Возвращает список объектов группы. Список будет содержать
         несколько групп только в том случае, если альбом имеет тип 'Split'.
 
@@ -393,7 +392,7 @@ class Album(MetallumEntity):
         return _get_bands_list(page)
 
     @property
-    def added(self) -> Optional[datetime.datetime]:
+    def added(self) -> datetime.datetime | None:
         """
         >>> type(album.added)
         <class 'NoneType'>
@@ -405,7 +404,7 @@ class Album(MetallumEntity):
             return None
 
     @property
-    def modified(self) -> Optional[datetime.datetime]:
+    def modified(self) -> datetime.datetime | None:
         """
         >>> type(album.modified)
         <class 'datetime.datetime'>
@@ -445,7 +444,7 @@ class Album(MetallumEntity):
         return 0
 
     @property
-    def date(self) -> Optional[datetime.datetime]:
+    def date(self) -> datetime.datetime:
         """
         >>> album.date
         datetime.datetime(1986, 3, 3, 0, 0)
@@ -479,11 +478,11 @@ class Album(MetallumEntity):
         element = self._dd_element_for_label("Label:")
         return element("a").text() if element else ""
 
-    def _review_element(self) -> Optional[PyQuery]:
+    def _review_element(self) -> PyQuery | None:
         return self._dd_element_for_label("Reviews:")
 
     @property
-    def score(self) -> Optional[int]:
+    def score(self) -> int | None:
         """
         >>> album.score
         79
@@ -505,7 +504,7 @@ class Album(MetallumEntity):
         return int(score.group(1))
 
     @property
-    def review_count(self) -> Optional[int]:
+    def review_count(self) -> int | None:
         """
         >>> album.review_count
         39
@@ -527,7 +526,7 @@ class Album(MetallumEntity):
         return int(count.group(1))
 
     @property
-    def cover(self) -> Optional[str]:
+    def cover(self) -> str | None:
         """
         >>> album.cover
         'https://www.metal-archives.com/images/5/4/7/547.jpg'
@@ -567,6 +566,7 @@ class AlbumWrapper(Metallum):
     """
 
     def __init__(self, url=None, elem=None):
+        self._album: Album | LazyAlbum
         if url:
             super().__init__(url)
             self._album = Album(url)
@@ -585,6 +585,7 @@ class AlbumWrapper(Metallum):
         """Синхронная загрузка данных альбома (для использования в asyncio.to_thread)"""
         if isinstance(self._album, LazyAlbum):
             from metallum.models import Album
+
             self._album = Album(self._album.url)
         return self
 
@@ -625,7 +626,7 @@ class LazyAlbum:
         '547'
         """
         url = self._elem("td").eq(0)("a").attr("href")
-        return re.search(r"\d+$", url).group(0)
+        return extract_id(url)
 
     @property
     def url(self) -> str:
@@ -682,7 +683,7 @@ class SimilarArtistsResult(list):
         '125'
         """
         # url = PyQuery(self._details[0])('a').attr('href')
-        return re.search(r"\d+$", self[0]).group(0)
+        return extract_id(self[0])
 
     @property
     def url(self) -> str:
@@ -709,7 +710,7 @@ class SimilarArtistsResult(list):
         return self[2]
 
     @property
-    def genres(self) -> List[str]:
+    def genres(self) -> list[str]:
         """
         >>> search_results[0].genres
         ['Thrash Metal (early)', 'Hard Rock (mid)', 'Heavy/Thrash Metal (later)']

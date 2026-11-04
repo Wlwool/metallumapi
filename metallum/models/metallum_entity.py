@@ -1,7 +1,5 @@
 """Базовый класс для всех сущностей на Metal Archives"""
 
-from typing import Optional
-
 from pyquery import PyQuery
 
 from metallum.models.metallum import Metallum
@@ -10,7 +8,7 @@ from metallum.models.metallum import Metallum
 class MetallumEntity(Metallum):
     """Представляет сущность Metallum (артист, альбом...)"""
 
-    def _dd_element_for_label(self, label: str) -> Optional[PyQuery]:
+    def _dd_element_for_label(self, label: str) -> PyQuery | None:
         """
         Данные на страницах сущностей хранятся в парах <dt> / <dd>
 

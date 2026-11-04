@@ -1,25 +1,23 @@
 """Результаты поиска на Metal Archives"""
 
 import re
-from typing import List
+from collections.abc import Callable
 
 from pyquery import PyQuery
 
 from metallum.models import Album, AlbumWrapper, Band, _get_bands_list
 from metallum.models.lyrics import Lyrics
-from metallum.models.metallum import Metallum
-from metallum.utils import split_genres
+from metallum.utils import extract_id, split_genres
 
 
-class SearchResult(list):
-    """
-    Представляет результат поиска в расширенном поиске
+class SearchResult[T](list):
+    """Представляет результат поиска в расширенном поиске."""
 
-    Атрибуты:
-        _resultType: Тип результата
-    """
+    _resultType: Callable[[str], T]
 
-    _resultType = None
+    @property
+    def url(self) -> str:
+        raise NotImplementedError
 
     def __init__(self, details):
         super().__init__()
@@ -38,14 +36,12 @@ class SearchResult(list):
         s = " | ".join(self)
         return f"<SearchResult: {s}>"
 
-    def get(self) -> "Metallum":
-        """Return the result as a Metallum object"""
-        # ! E1102: self._resultType is not callable (not-callable)
-        # ! E1101: Instance of 'SearchResult' has no 'url' member (no-member)
+    def get(self) -> T:
+        """Return the result as its represented object."""
         return self._resultType(self.url)
 
 
-class BandResult(SearchResult):
+class BandResult(SearchResult[Band]):
     """Представляет результат поиска группы"""
 
     def __init__(self, details):
@@ -63,7 +59,7 @@ class BandResult(SearchResult):
             '125'
         """
         url = PyQuery(self._details[0])("a").attr("href")
-        return re.search(r"\d+$", url).group(0)
+        return extract_id(url)
 
     @property
     def url(self) -> str:
@@ -88,7 +84,7 @@ class BandResult(SearchResult):
         return self[0]
 
     @property
-    def genres(self) -> List[str]:
+    def genres(self) -> list[str]:
         """
         Жанры группы
 
@@ -110,18 +106,18 @@ class BandResult(SearchResult):
         return self[2]
 
     @property
-    def other(self) -> str:
+    def other(self) -> list[str]:
         """
         Другая информация о группе
 
         Примеры:
             >>> search_results[0].other
-            'Active since: 1981'
+            ['Active since: 1981']
         """
         return self[3:]
 
 
-class AlbumResult(SearchResult):
+class AlbumResult(SearchResult[AlbumWrapper]):
     """Представляет результат поиска альбома"""
 
     def __init__(self, details):
@@ -139,7 +135,7 @@ class AlbumResult(SearchResult):
             '1'
         """
         url = PyQuery(self._details[1])("a").attr("href")
-        return re.search(r"\d+$", url).group(0)
+        return extract_id(url)
 
     @property
     def url(self) -> str:
@@ -175,7 +171,7 @@ class AlbumResult(SearchResult):
         return self[2]
 
     @property
-    def bands(self) -> List["Band"]:
+    def bands(self) -> list["Band"]:
         """
         Список групп, выпустивших альбом
 
@@ -198,13 +194,12 @@ class AlbumResult(SearchResult):
         return self[0]
 
 
-class SongResult(SearchResult):
+class SongResult(SearchResult["SongResult"]):
     """Представляет результат поиска песни"""
 
     def __init__(self, details):
         super().__init__(details)
         self._details = details
-        self._resultType = None
 
     def get(self) -> "SongResult":
         """Return the result as a SongResult object"""
@@ -219,7 +214,10 @@ class SongResult(SearchResult):
             >>> song.id
             '3449'
         """
-        return re.search(r"(\d+)", self[5]).group(0)
+        match = re.search(r"(\d+)", self[5])
+        if match is None:
+            raise ValueError(f"Song has no numeric identifier: {self[5]!r}")
+        return match.group(0)
 
     @property
     def title(self) -> str:
@@ -244,7 +242,7 @@ class SongResult(SearchResult):
         return self[2]
 
     @property
-    def bands(self) -> List["Band"]:
+    def bands(self) -> list["Band"]:
         """
         Список групп, выпустивших песню
 
@@ -276,7 +274,7 @@ class SongResult(SearchResult):
             <Album: albums/_/_/1>
         """
         url = PyQuery(self._details[1]).attr("href")
-        album_id = re.search(r"\d+$", url).group(0)
+        album_id = extract_id(url)
         return Album(f"albums/_/_/{album_id}")
 
     @property
@@ -291,7 +289,7 @@ class SongResult(SearchResult):
         return self[1]
 
     @property
-    def genres(self) -> List[str]:
+    def genres(self) -> list[str]:
         """
         Жанры песни
 

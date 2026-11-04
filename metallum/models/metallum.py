@@ -4,7 +4,6 @@ import hashlib
 import json
 import time
 from pathlib import Path
-from typing import Optional
 
 from curl_cffi import requests as curl_requests
 from pyquery import PyQuery
@@ -15,6 +14,7 @@ from metallum.utils import make_absolute
 
 class Metallum:
     """Базовый класс Metallum - представляет страницу Metallum"""
+
     _CACHE_TTL = 5
     _session = curl_requests.Session(impersonate="chrome120")
 
@@ -29,7 +29,7 @@ class Metallum:
         digest = hashlib.sha256(url.encode("utf-8")).hexdigest()
         return self._cache_dir / f"{digest}.cache"
 
-    def _load_from_cache(self, url: str) -> Optional[str]:
+    def _load_from_cache(self, url: str) -> str | None:
         cache_file = self._cache_path(url)
         if not cache_file.exists():
             return None

@@ -47,13 +47,11 @@ Metal Archives не предоставляет официального API, п�
 
 ## Требования
 
-- Python `>=3.13` (см. `pyproject.toml`);
+- Python `>=3.13,<4.0` (см. `pyproject.toml`);
 - рабочий OpenSSL (для HTTP/2 и современного TLS);
-- зависимости:
-  - `curl-cffi` - обход Cloudflare;
-  - `requests`, `pyquery`, `lxml`, `python-dateutil`, `curl-cffi`.
+- зависимости: `curl-cffi`, `requests`, `pyquery`, `lxml`, `python-dateutil`.
 
-> Разработка и тестирование ведутся под Linux + Python 3.13. На других версиях может работать, но гарантий нет.
+> Тесты запускаются на Linux с Python 3.13 и 3.14. На других поддерживаемых версиях библиотека может работать.
 
 ---
 
@@ -63,20 +61,17 @@ Metal Archives не предоставляет официального API, п�
 ### uv / локальная разработка
 
 ```bash
-uv venv .venv
-source .venv/bin/activate
-uv pip install -e .
+uv sync --extra dev
 ```
 
-После этого можно править исходники и сразу запускать локальные скрипты/тесты.
+После этого можно править исходники и запускать проверки через `uv run` или цели Makefile.
 
 ### Git clone
 
 ```bash
 git clone https://github.com/Wlwool/metallumapi.git
 cd metallumapi
-uv venv .venv && source .venv/bin/activate
-uv pip install -e .
+uv sync --extra dev
 ```
 
 ---
@@ -142,7 +137,7 @@ print(release.title, release.type, release.date)
 
 ## Вклад в проект
 
-PR приветствуются: багфиксы, актуализация моделей, поддержка новых эндпоинтов. Перед PR убедитесь, что линтеры и тесты проходят (`pytest tests/`). Если нашли проблему смело заводите issue.
+PR приветствуются: багфиксы, актуализация моделей, поддержка новых эндпоинтов. Перед PR выполните `make checkall`: Ruff, mypy, pytest и сборку пакета. Полный набор тестов обращается к живому Metal Archives, поэтому возможны сетевые задержки и временные сбои. Если нашли проблему, смело заводите issue.
 
 ---
 

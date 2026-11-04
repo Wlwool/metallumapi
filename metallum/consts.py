@@ -3,7 +3,6 @@
 import os
 import tempfile
 
-
 CACHE_FILE = os.path.join(tempfile.gettempdir(), "metallum_cache")
 
 # Детали сайта
