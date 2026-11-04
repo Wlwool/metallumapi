@@ -1,10 +1,12 @@
 """Базовый класс Metallum для коллекций (например, альбомов)"""
+
 import asyncio
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 from metallum.consts import REQUEST_TIMEOUT
 from metallum.models.metallum import Metallum
-import time
+
 
 class MetallumCollection(Metallum, list):
     """Базовый класс Metallum для коллекций (например, альбомов)"""
@@ -37,7 +39,10 @@ class MetallumCollection(Metallum, list):
             return item
 
         # Разбиваем на пачки
-        batches = [target_items[i:i + batch_size] for i in range(0, len(target_items), batch_size)]
+        batches = [
+            target_items[i : i + batch_size]
+            for i in range(0, len(target_items), batch_size)
+        ]
 
         for idx, batch in enumerate(batches):
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -48,7 +53,9 @@ class MetallumCollection(Metallum, list):
                 time.sleep(batch_delay)
         return self
 
-    async def load_all_async(self, max_workers=100, items=None, batch_size=100, batch_delay=0.7):
+    async def load_all_async(
+        self, max_workers=100, items=None, batch_size=100, batch_delay=0.7
+    ):
         """
         Асинхронная загрузка деталей всех элементов коллекции
 
@@ -78,7 +85,10 @@ class MetallumCollection(Metallum, list):
                 return item
 
         # Разбиваем на пачки
-        batches = [target_items[i:i + batch_size] for i in range(0, len(target_items), batch_size)]
+        batches = [
+            target_items[i : i + batch_size]
+            for i in range(0, len(target_items), batch_size)
+        ]
 
         for idx, batch in enumerate(batches):
             tasks = [_load_item(item) for item in batch]
@@ -89,16 +99,14 @@ class MetallumCollection(Metallum, list):
                 await asyncio.sleep(batch_delay)
         return self
 
-
-    def search(self, **kwargs) -> "MetallumCollection":
+    def search(self, **kwargs) -> list:
         """
         Запрос к коллекции на основе одной или нескольких пар ключ-значение, где
         ключи являются атрибутами содержащихся объектов:
         Args:
             **kwargs: Пары ключ-значение для фильтрации коллекции
         Returns:
-            MetallumCollection: Новая коллекция, содержащая только элементы,
-            соответствующие критериям поиска
+            list: Список элементов, соответствующих критериям поиска
         Examples:
             >>> len(band.albums.search(title='master of puppets'))
             2
@@ -106,6 +114,7 @@ class MetallumCollection(Metallum, list):
             >>> len(band.albums.search(title='master of puppets', type=AlbumTypes.FULL_LENGTH))
             1
         """
+
         def _normalize(obj):
             if isinstance(obj, str):
                 return obj.lower()

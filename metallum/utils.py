@@ -1,7 +1,7 @@
 """Вспомогательные функции для пакета Metallum."""
+
 import datetime
 import re
-from typing import List
 
 from metallum.consts import BASE_URL, UTC_OFFSET
 
@@ -23,7 +23,14 @@ def map_params(params, m):
     return res
 
 
-def split_genres(s: str) -> List[str]:
+def extract_id(url: str) -> str:
+    match = re.search(r"\d+$", url)
+    if match is None:
+        raise ValueError(f"URL has no trailing numeric identifier: {url!r}")
+    return match.group(0)
+
+
+def split_genres(s: str) -> list[str]:
     """
     Разделить строку жанров на список жанров.
     Args:
