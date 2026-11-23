@@ -1,0 +1,34 @@
+<script type="c1fdf7f6521841cbdedca3ed-text/javascript" src="https://www.metal-archives.com/js/jquery/jquery.dataTables.min.js"></script>
+<script type="c1fdf7f6521841cbdedca3ed-text/javascript">
+
+// Prepare band recommendation dialog
+$(document).ready(function() {
+	$(".no-js").removeClass("no-js");
+	$('#similarBandSelection').dialog({ autoOpen: false, width: 600, height: 500, modal: true, overlay: { opacity: 0.5, background: 'white'} });
+	$('#bandSearch').ajaxForm({ target: '#bandSearchResults', beforeSubmit: toggleLoading, success: toggleLoading});
+});
+
+</script>
+
+<div id="band_simartists">
+	<div class="tool_strip top right writeAction">
+			</div>
+</div>
+
+<div class="ui-tabs-panel-content block_spacer_top_36">
+	<table id="artist_list" class="display" cellpadding="0" cellspacing="0">
+		<thead>
+			<tr>
+								<th>Name</th>
+				<th width="82">Country</th>
+				<th>Genre</th>
+				<th>Score</th>
+			</tr>
+		</thead>
+		<tbody>
+		    				<tr><td colspan="5" id="no_artists">No similar artist has been recommended yet. (Read more about <a href="https://www.metal-archives.com/content/help#tab_similar">this</a>.)</td></tr>
+										<tr><td colspan="5" id="show_more">(<a href="https://www.metal-archives.com/bands/Astral_Lore/3540539551#Similar_artists">show top 20 only</a>)</td></tr>
+					</tbody>
+	</table>
+	</div>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f070fc8c9196f8',t:'MTc5NTQzOTcxMg=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f070fc8c9196f8',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="c1fdf7f6521841cbdedca3ed-|49" defer></script>
